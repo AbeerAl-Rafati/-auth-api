@@ -32,9 +32,12 @@ app.use(authRoutes);
 app.use('/api/v1', v1Routes);
 app.use('/api/v2', v2Routes);
 
+
+
 app.get('/', (req, res) => {
   res.send('Home Page');
 });
+
 app.get('/bad', (req, res) => {
   throw new Error();
 });
@@ -43,10 +46,14 @@ app.get('/bad', (req, res) => {
 app.use('*', notFound);
 app.use(errorHandler);
 
+
 module.exports = {
   server: app,
   start: (port) => {
+
     if (!port) { throw new Error("Missing Port"); }
+
     app.listen(port, () => { console.log(`Server Up on ${port}`); });
+
   },
 };
