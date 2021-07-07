@@ -12,7 +12,7 @@ const notFound = require('./error-handlers/404.js');
 //routers import
 const authRoutes = require('./auth/routes.js');
 const v1Routes = require('./api/routes/v1');
-const v1Routes = require('./api/routes/v2');
+const v2Routes = require('./api/routes/v2');
 
 
 
