@@ -35,38 +35,73 @@ router.param('model', (req, res, next) => {
 
 router.get('/:model', bearerAuth, handleGetAll);
 router.get('/:model/:id', bearerAuth, handleGetOne);
-router.post('/:model', bearerAuth, permissions, handleCreate);
-router.put('/:model/:id', bearerAuth, permissions, handleUpdate);
-router.delete('/:model/:id', bearerAuth, permissions, handleDelete);
+router.post('/:model', bearerAuth, permissions('create'), handleCreate);
+router.put('/:model/:id', bearerAuth, permissions('update'), handleUpdate);
+router.delete('/:model/:id', bearerAuth, permissions('delete'), handleDelete);
+
 
 async function handleGetAll(req, res) {
-  let allRecords = await req.model.get();
-  res.status(200).json(allRecords);
+
+  try {
+    let allRecords = await req.model.get();
+    res.status(200).json(allRecords);
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
+
 }
 
 async function handleGetOne(req, res) {
-  const id = req.params.id;
-  let theRecord = await req.model.get(id)
-  res.status(200).json(theRecord);
+
+  try {
+    const id = req.params.id;
+    let theRecord = await req.model.get(id)
+    res.status(200).json(theRecord);
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
 }
 
 async function handleCreate(req, res) {
-  let obj = req.body;
-  let newRecord = await req.model.create(obj);
-  res.status(201).json(newRecord);
+
+  try {
+    let obj = req.body;
+    let newRecord = await req.model.create(obj);
+    res.status(201).json(newRecord);
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
 }
 
 async function handleUpdate(req, res) {
-  const id = req.params.id;
-  const obj = req.body;
-  let updatedRecord = await req.model.update(id, obj)
-  res.status(200).json(updatedRecord);
+  try {
+    const id = req.params.id;
+    const obj = req.body;
+    let updatedRecord = await req.model.update(id, obj)
+    res.status(200).json(updatedRecord);
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
 }
 
 async function handleDelete(req, res) {
-  let id = req.params.id;
-  let deletedRecord = await req.model.delete(id);
-  res.status(200).json(deletedRecord);
+  try {
+    let id = req.params.id;
+    let deletedRecord = await req.model.delete(id);
+    res.status(200).json(deletedRecord);
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
 }
 
 

@@ -3,22 +3,32 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+// require('dotenv').config(); //enough requiring in entry file
 
 const users = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, required: true, default: 'user', enum: ['user', 'editor', 'admin'] },
+  role: {
+    type: String,
+    required: true,
+    default: 'user',
+    enum: ['user', 'editor', 'admin']
+  },
+
 });
+
 // }, { toObject: { getters: true } }); // What would this do if we use this instead of just });
 
 // Adds a virtual field to the schema. We can see it, but it never persists
 // So, on every user object ... this.token is now readable!
+
 users.virtual('token').get(function () {
   let tokenObject = {
     username: this.username,
   }
   return jwt.sign(tokenObject, process.env.SECRET)
 });
+
 
 users.virtual('capabilities').get(function () {
   let acl = {
@@ -29,6 +39,7 @@ users.virtual('capabilities').get(function () {
   return acl[this.role];
 });
 
+
 users.pre('save', async function () {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -37,10 +48,19 @@ users.pre('save', async function () {
 
 // BASIC AUTH
 users.statics.authenticateBasic = async function (username, password) {
-  const user = await this.findOne({ username })
-  const valid = await bcrypt.compare(password, user.password)
-  if (valid) { return user; }
-  throw new Error('Invalid User');
+
+  try {
+    const user = await this.findOne({ username })
+    const valid = await bcrypt.compare(password, user.password)
+    if (valid) { return user; }
+    throw new Error('Invalid User');
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+
+
+
 }
 
 // BEARER AUTH
@@ -50,6 +70,7 @@ users.statics.authenticateWithToken = async function (token) {
     const user = this.findOne({ username: parsedToken.username })
     if (user) { return user; }
     throw new Error("User Not Found");
+
   } catch (e) {
     throw new Error(e.message)
   }
